@@ -24,7 +24,7 @@ export const todoRouter = createTRPCRouter({
     },{
       id:"fake",
       text:'fake text',
-      done:false
+      done:true
     }]
   }),
 
