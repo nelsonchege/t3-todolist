@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -20,6 +21,7 @@ export const todoRouter = createTRPCRouter({
   createTodo: protectedProcedure
     .input(todoInput)
     .mutation(async ({ ctx, input }) => {
+      // throw new TRPCError({ code: "BAD_REQUEST" });
       return ctx.prisma.todo.create({
         data: {
           text: input,

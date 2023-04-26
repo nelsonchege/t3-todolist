@@ -8,6 +8,30 @@ export default function CreateTodo() {
 
   const trpc = api.useContext();
   const { mutate } = api.todo.createTodo.useMutation({
+    onMutate: async (newTodo) => {
+      // cancel any outgoing refetches to avoid overwrites
+      await trpc.todo.getallTodos.cancel();
+      // gets snapshot of pervios values
+      const previousTodos = trpc.todo.getallTodos.getData();
+
+      trpc.todo.getallTodos.setData(undefined, (prev) => {
+        const optimisticTodo = {
+          id: `optimistic-todo-${newTodo}`,
+          text: newTodo,
+          done: false,
+        };
+        if (!prev) return [optimisticTodo];
+        return [...prev, optimisticTodo];
+      });
+
+      setNewTodo("");
+      return { previousTodos };
+    },
+    onError: async (error, newTodo, context) => {
+      toast.error("An error occured when creating todo");
+      setNewTodo(newTodo);
+      trpc.todo.getallTodos.setData(undefined, () => context?.previousTodos);
+    },
     onSettled: async () => {
       await trpc.todo.getallTodos.invalidate();
     },
