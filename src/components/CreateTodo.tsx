@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { todoInput } from "~/types";
+import { api } from "~/utils/api";
 
 export default function CreateTodo() {
   const [newTodo, setNewTodo] = useState("");
+
+  const trpc = api.useContext();
+  const { mutate } = api.todo.createTodo.useMutation({
+    onSettled: async () => {
+      await trpc.todo.getallTodos.invalidate();
+    },
+  });
+
   return (
     <div>
       <form
@@ -11,11 +20,14 @@ export default function CreateTodo() {
           e.preventDefault();
 
           const result = todoInput.safeParse(newTodo);
-          if (!result.success) {
-            console.log("not Valid");
 
+          if (!result.success) {
             toast.error(result.error.format()._errors.join("\n"));
+            return;
           }
+
+          // create todo mutation
+          mutate(newTodo);
         }}
         className="flex gap-2"
       >
