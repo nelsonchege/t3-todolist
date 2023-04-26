@@ -15,15 +15,6 @@ export const todoRouter = createTRPCRouter({
       },
     });
     return todos.map(({ id, text, done }) => ({ id, text, done }));
-    // return [{
-    //   id:"fake",
-    //   text:'fake text',
-    //   done:false
-    // },{
-    //   id:"fake",
-    //   text:'fake text',
-    //   done:true
-    // }]
   }),
 
   createTodo: protectedProcedure
